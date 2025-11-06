@@ -1,0 +1,6 @@
+{
+  "compilerOptions": {
+    "baseUrl": "."
+  },
+  "include": ["helpers", "tests"]
+}

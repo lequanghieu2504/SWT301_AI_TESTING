@@ -1,0 +1,37 @@
+# Node modules
+node_modules/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build outputs
+dist/
+build/
+out/
+coverage/
+
+# Test outputs
+output/
+
+# Env files
+.env
+.env.local
+.env.*.local
+
+# IDE & OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Playwright/CodeceptJS screenshots & videos (nếu không muốn lưu git)
+*.png
+*.mp4
+
+# Optional: temp files
+tmp/
+temp/

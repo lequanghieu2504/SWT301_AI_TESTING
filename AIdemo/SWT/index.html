@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>DateTime Checker</title>
+    <style>
+      body {
+        font-family: "Segoe UI", Arial, sans-serif;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+        color: #333;
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .container {
+        background: rgba(255, 255, 255, 0.15);
+        backdrop-filter: blur(12px);
+        border-radius: 16px;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+        padding: 30px 40px;
+        max-width: 500px;
+        width: 90%;
+        color: #fff;
+        animation: fadeIn 0.8s ease;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      h1 {
+        text-align: center;
+        margin-bottom: 25px;
+        font-size: 1.8em;
+        font-weight: 600;
+        color: #fff;
+        letter-spacing: 1px;
+      }
+      .input-group {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 20px;
+      }
+      label {
+        margin-bottom: 6px;
+        font-weight: 500;
+        font-size: 0.95em;
+      }
+      input[type="date"],
+      input[type="time"] {
+        padding: 10px 14px;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        border-radius: 8px;
+        font-size: 1em;
+        background: rgba(255, 255, 255, 0.2);
+        color: #fff;
+        outline: none;
+        transition: all 0.3s ease;
+      }
+      input[type="date"]:focus,
+      input[type="time"]:focus {
+        border-color: #fff;
+        background: rgba(255, 255, 255, 0.3);
+      }
+      button {
+        width: 100%;
+        padding: 12px 16px;
+        border: none;
+        border-radius: 8px;
+        background: linear-gradient(135deg, #6a5acd, #00bcd4);
+        color: #fff;
+        font-size: 1em;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        letter-spacing: 0.5px;
+      }
+      button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
+      }
+      .result {
+        margin-top: 25px;
+        padding: 15px;
+        border-radius: 10px;
+        font-size: 0.95em;
+        line-height: 1.5;
+        white-space: pre-line;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid transparent;
+        min-height: 40px;
+        transition: all 0.4s ease;
+      }
+      .result.error {
+        border-color: #ff4d4d;
+        background: rgba(255, 77, 77, 0.2);
+        color: #ffdddd;
+      }
+      .result.success {
+        border-color: #7fff7f;
+        background: rgba(50, 205, 50, 0.2);
+        color: #d8ffd8;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>🕒 DateTime Checker</h1>
+
+      <div class="input-group">
+        <label for="dateInput">Select Date:</label>
+        <input type="date" id="dateInput" name="dateInput" tabindex="1" />
+      </div>
+
+      <div class="input-group">
+        <label for="timeInput">Select Time:</label>
+        <input
+          type="time"
+          id="timeInput"
+          name="timeInput"
+          step="1"
+          tabindex="2"
+        />
+      </div>
+
+      <button id="checkButton" onclick="checkDateTime()" tabindex="3">
+        Check DateTime
+      </button>
+
+      <div id="result" class="result"></div>
+    </div>
+
+    <script>
+      function parseDateTime(dateStr, timeStr) {
+        const [year, month, day] = dateStr.split("-").map(Number);
+        const [hours, minutes = 0] = timeStr.split(":").map(Number); // 👈 mặc định phút = 0 nếu bỏ trống
+        return new Date(year, month - 1, day, hours, minutes);
+      }
+
+      function formatDateTime(date) {
+        if (!(date instanceof Date) || isNaN(date.getTime()))
+          return "Invalid date";
+        const y = date.getFullYear();
+        const m = (date.getMonth() + 1).toString().padStart(2, "0");
+        const d = date.getDate().toString().padStart(2, "0");
+        const h = date.getHours().toString().padStart(2, "0");
+        const min = date.getMinutes().toString().padStart(2, "0");
+        return `${y}-${m}-${d} ${h}:${min}`;
+      }
+
+      function checkDateTime() {
+        const dateVal = document.getElementById("dateInput").value;
+        const timeVal = document.getElementById("timeInput").value;
+        const result = document.getElementById("result");
+
+        result.className = "result"; // reset
+
+        if (!dateVal || !timeVal) {
+          result.classList.add("error");
+          result.textContent = "⚠️ Please select both date and time";
+          return;
+        }
+
+        try {
+          const selected = parseDateTime(dateVal, timeVal);
+          const now = new Date();
+          if (isNaN(selected.getTime())) throw new Error();
+
+          const diffMs = selected - now;
+          const diffDays = Math.abs(diffMs) / (1000 * 60 * 60 * 24);
+          const diffMonths = diffDays / 30.44;
+          const diffYears = diffDays / 365.25;
+
+          const leap =
+            (selected.getFullYear() % 4 === 0 &&
+              selected.getFullYear() % 100 !== 0) ||
+            selected.getFullYear() % 400 === 0;
+
+          let desc =
+            diffYears >= 1
+              ? `${diffYears.toFixed(1)} years`
+              : diffMonths >= 1
+              ? `${diffMonths.toFixed(1)} months`
+              : `${diffDays.toFixed(1)} days`;
+
+          result.classList.add("success");
+          result.textContent = `Selected: ${formatDateTime(
+            selected
+          )}\n🕐 Current: ${formatDateTime(now)}\n📅 Leap Year: ${
+            leap ? "Yes" : "No"
+          }\n🕰 Time difference: ${
+            diffMs > 0
+              ? desc + " in the future"
+              : diffMs < 0
+              ? desc + " in the past"
+              : "same moment!"
+          }`;
+        } catch {
+          result.classList.add("error");
+          result.textContent = "Invalid date or time selected";
+        }
+      }
+    </script>
+  </body>
+</html>
